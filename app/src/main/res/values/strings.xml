@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Alarms MVVM App</string>
+    <string name="login">Login</string>
+    <string name="login_instruction">Por favor iniciar sesión:</string>
+    <string name="usernameLabel">Email</string>
+    <string name="passwordLabel">Contraseña</string>
+    <string name="email_error">Email no válido</string>
+    <string name="password_error">La contraseña debe tener al menos 6 caracteres</string>
+    <string name="recover_password">Recuperar contraseña</string>
+    <string name="login_button">Iniciar Sesión</string>
+    <string name="create_account_question">¿Quieres crear tu propia cuenta?</string>
+    <string name="invalid_form">Formulario inválido</string>
+</resources>
