@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -47,6 +48,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.kellieer.alarmsmvvmapp.R
 import com.kellieer.alarmsmvvmapp.presentation.navegation.AppScreens
 
@@ -57,6 +59,16 @@ fun MenuAdminButtonBar(
 ) {
     var showSearchBar by remember { mutableStateOf(false) }
     var searchText by remember { mutableStateOf("") }
+
+
+
+    val isPressed = remember { mutableStateOf(false) }
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+    val isOnMenUserScreen = currentRoute == AppScreens.MenuAdminScreen.route
+
+    if (isOnMenUserScreen) {
+        isPressed.value = true
+    }
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -71,19 +83,26 @@ fun MenuAdminButtonBar(
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth().height(52.dp)
         ) {
-            IconButton(onClick = {  }) {
+            IconButton(onClick = {  },
+                modifier = Modifier
+                    .background(
+                        if (isPressed.value) Color(0xFF6B469D) else Color.Transparent,
+                        shape = CircleShape
+                    )
+                    .padding(8.dp).size(28.dp)
+                ) {
                 Icon(
                     painter = painterResource(id = R.drawable.folder),
                     contentDescription = "Buscar",
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(18.dp)
                 )
             }
             Spacer(modifier = Modifier.weight(1f, true))
             IconButton(onClick = { }) {
                 Icon(
-                    painter = painterResource(id = R.drawable.saved),
+                    painter = painterResource(id = R.drawable.favorite),
                     contentDescription = "Buscar",
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(18.dp)
                 )
             }
             Spacer(modifier = Modifier.weight(1f, true))
@@ -91,7 +110,7 @@ fun MenuAdminButtonBar(
                 Icon(
                     painter = painterResource(id = R.drawable.account),
                     contentDescription = "Perfil",
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(18.dp)
                 )
             }
         }
@@ -102,81 +121,25 @@ fun MenuAdminButtonBar(
                 .fillMaxSize()
                 .padding(end = 16.dp, bottom = 72.dp)
         ) {
-            FloatingActionButton(
-                onClick = {  },
-                modifier = Modifier.size(56.dp),
-                containerColor = MaterialTheme.colorScheme.primary
+            Column(
+                verticalArrangement = Arrangement.spacedBy(10.dp), // Espacio entre botones
+                horizontalAlignment = Alignment.End
             ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.error),
-                    contentDescription = "Añadir Cupón",
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.size(24.dp)
-                )
+                FloatingActionButton(
+                    onClick = { /* Acción para cupón */ },
+                    modifier = Modifier.size(56.dp),
+                    containerColor = MaterialTheme.colorScheme.primary
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.add),
+                        contentDescription = "Cupón",
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
         }
+
     }
 }
 
-
-
-
-@Composable
-fun EventCard(
-    title: String,
-    description: String,
-    date: String,
-    address: String,
-    city: String,
-    isHighlighted: Boolean
-) {
-    Card(
-        modifier = Modifier
-            .padding(8.dp)
-            .width(500.dp)
-            .shadow(if (isHighlighted) 10.dp else 2.dp, RoundedCornerShape(10.dp)),
-        elevation = if (isHighlighted) CardDefaults.cardElevation(8.dp) else CardDefaults.cardElevation(2.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isHighlighted) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surface
-        )
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = title, style = MaterialTheme.typography.titleMedium)
-            Text(text = description, style = MaterialTheme.typography.bodyMedium)
-            Text(text = "Fecha: $date", style = MaterialTheme.typography.bodySmall)
-            Text(text = "Dirección: $address", style = MaterialTheme.typography.bodySmall)
-            Text(text = "Ciudad: $city", style = MaterialTheme.typography.bodySmall)
-        }
-    }
-}
-
-
-@Composable
-fun CouponCard(
-    name: String,
-    stock: Int,
-    startDate: String,
-    endDate: String,
-    salePrice: Double,
-    isHighlighted: Boolean
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-            .width(500.dp)
-            .shadow(if (isHighlighted) 10.dp else 2.dp, RoundedCornerShape(10.dp)),
-        elevation = if (isHighlighted) CardDefaults.cardElevation(8.dp) else CardDefaults.cardElevation(2.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isHighlighted) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surface
-        )
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = name, style = MaterialTheme.typography.titleMedium)
-            Text(text = "Stock: $stock", style = MaterialTheme.typography.bodyMedium)
-            Text(text = "Fecha Inicio: $startDate", style = MaterialTheme.typography.bodySmall)
-            Text(text = "Fecha Fin: $endDate", style = MaterialTheme.typography.bodySmall)
-            Text(text = "Precio: $salePrice", style = MaterialTheme.typography.bodySmall)
-        }
-    }
-}

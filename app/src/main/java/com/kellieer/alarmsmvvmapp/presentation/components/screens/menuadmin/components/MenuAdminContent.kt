@@ -1,6 +1,7 @@
 package com.kellieer.alarmsmvvmapp.presentation.components.screens.menuadmin.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -32,17 +33,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 
 @Composable
-fun MenuAdminContent(
-
-) {
+fun MenuAdminContent() {
     Box(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .fillMaxWidth().verticalScroll(rememberScrollState())
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
         ) {
             repeat(6) {
                 CardItem()
@@ -51,17 +50,21 @@ fun MenuAdminContent(
     }
 }
 
-
-
 @Composable
 fun CardItem() {
+    val isDarkTheme = isSystemInDarkTheme() // Detectar modo oscuro
+
+    // Definir colores dinámicamente
+    val backgroundColor = if (isDarkTheme) Color(0xFF2C2C2E) else Color(0xFFF5EFFF) // Fondo de la tarjeta
+    val iconBackground = if (isDarkTheme) Color(0xFF3C3C3E) else Color(0xFFEADDF6) // Fondo del círculo
+    val iconColor = if (isDarkTheme) Color(0xFF7E57C2) else Color(0xFF6B469D) // Ícono adaptado
+
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .offset(y = 122.dp)
+            .fillMaxWidth().offset(y = 124.dp)
             .padding(horizontal = 16.dp, vertical = 8.dp),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF5EFFF))
+        colors = CardDefaults.cardColors(containerColor = backgroundColor)
     ) {
         Row(
             modifier = Modifier
@@ -75,13 +78,13 @@ fun CardItem() {
                 modifier = Modifier
                     .size(36.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFFEADDF6)),
+                    .background(iconBackground),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.Notifications,
                     contentDescription = "Alerta",
-                    tint = Color(0xFF6B469D)
+                    tint = iconColor
                 )
             }
 
@@ -98,23 +101,9 @@ fun CardItem() {
                 Text(
                     text = "Subhead",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
+                    color = if (isDarkTheme) Color.LightGray else Color.Gray
                 )
             }
-
-            Icon(
-                imageVector = Icons.Default.Check,
-                contentDescription = "Aceptar",
-                tint = Color.Black
-            )
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            Icon(
-                imageVector = Icons.Default.Close,
-                contentDescription = "Cerrar",
-                tint = Color.Black
-            )
         }
     }
 }

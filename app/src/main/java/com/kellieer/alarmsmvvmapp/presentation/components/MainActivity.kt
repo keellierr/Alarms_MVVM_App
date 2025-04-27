@@ -15,6 +15,7 @@ import androidx.navigation.compose.rememberNavController
 import android.Manifest
 import com.kellieer.alarmsmvvmapp.controller.UserSessionManager
 import com.kellieer.alarmsmvvmapp.presentation.components.screens.editregister.EditRegisterScreen
+import com.kellieer.alarmsmvvmapp.presentation.components.screens.menuadmin.MenuAdminScreen
 import com.kellieer.alarmsmvvmapp.presentation.components.screens.menualertuser.MenuAlertUserScreen
 import com.kellieer.alarmsmvvmapp.presentation.components.screens.menuser.MenUserScreen
 import com.kellieer.alarmsmvvmapp.presentation.components.screens.quicklyworldalert.QuicklyWorldAlertScreen
@@ -58,7 +59,8 @@ class MainActivity : ComponentActivity() {
                         //MenUserScreen(navController = navController)
                         //MenuAlertUserScreen(navController = navController)
                         //ShowSavedAlertScreen(navController = navController)
-                        ShowRefuseAlertScreen(navController = navController)
+                        //ShowRefuseAlertScreen(navController = navController)
+                        MenuAdminScreen(navController =  navController)
 //                        AppNavigation(
 //                            navController = navController,
 //                            startDestination = AppScreens.MenUserScreen.route
