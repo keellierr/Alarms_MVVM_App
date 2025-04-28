@@ -8,5 +8,6 @@ data class User(
     val email: String,
     val password: String,
     val role: Role,
-    val alerts: List<Alert> = emptyList()
+    val alerts: List<Alert> = emptyList(),
+    val profileImageUri: String? = null
 )

@@ -1,4 +1,4 @@
-package com.kellieer.alarmsmvvmapp.model.Dtos
+package com.kellieer.alarmsmvvmapp.model.Dtos.alert
 
 import com.kellieer.alarmsmvvmapp.model.AlertType
 

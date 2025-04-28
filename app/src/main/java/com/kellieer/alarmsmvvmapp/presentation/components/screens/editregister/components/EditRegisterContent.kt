@@ -1,9 +1,13 @@
 package com.kellieer.alarmsmvvmapp.presentation.components.screens.editregister.components
 
+import android.net.Uri
 import android.util.Patterns
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -55,40 +59,139 @@ import com.kellieer.alarmsmvvmapp.presentation.components.DefaultTextField
 import com.kellieer.alarmsmvvmapp.presentation.components.DefaultTextFieldPassword
 import com.kellieer.alarmsmvvmapp.presentation.navegation.AppScreens
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.IconButton
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.draw.shadow
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kellieer.alarmsmvvmapp.presentation.components.screens.editregister.EditRegisterViewModel
 import com.kellieer.alarmsmvvmapp.presentation.components.screens.register.RegisterViewModel
+import com.kellieer.alarmsmvvmapp.presentation.components.screens.registeralert.components.createImageUri
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import coil.compose.rememberAsyncImagePainter
+
 
 @Composable
 fun EditRegisterContent(navController: NavController) {
+    val context = LocalContext.current
+    val viewModel: EditRegisterViewModel = viewModel()
+    val photoUri = remember { mutableStateOf<Uri?>(null) }
+    val coroutineScope = rememberCoroutineScope()
+
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            viewModel.profileImageUri = it.toString()
+        }
+    }
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success && photoUri.value != null) {
+            viewModel.profileImageUri = photoUri.value.toString()
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .verticalScroll(rememberScrollState()),
+            .verticalScroll(rememberScrollState())
     ) {
         BoxHeader(useImage = false, backgroundColor = Color(0xFF2E1A47))
-        CardForm(navController = navController)
-        CenteredCircularImage()
+
+        // Imagen de perfil
+        CenteredCircularImage(viewModel.profileImageUri)
+
+        // Botón flotante
+        CircularEditButton(
+            onGalleryClick = {
+                galleryLauncher.launch("image/*")
+            },
+            onCameraClick = {
+                val newUri = createImageUri(context)
+                photoUri.value = newUri
+                cameraLauncher.launch(newUri)
+            }
+        )
+
+        // Formulario
+        CardForm(navController)
     }
 }
 
+
 @Composable
-fun CenteredCircularImage() {
+fun CenteredCircularImage(imageUri: String?) {
+    val painter = if (!imageUri.isNullOrEmpty()) {
+        rememberAsyncImagePainter(model = imageUri)
+    } else {
+        painterResource(id = R.drawable.suave)
+    }
+
     Image(
-        painter = painterResource(id = R.drawable.suave),
-        contentDescription = null,
+        painter = painter,
+        contentDescription = "Imagen de Perfil",
         contentScale = ContentScale.Crop,
         modifier = Modifier
-            .size(160.dp)
-            .offset(y = (-1156).dp, x = 118.dp)
-            .clip(RoundedCornerShape(80.dp)).shadow(20.dp, CircleShape)
-
+            .size(190.dp)
+            .offset(y = (-326).dp, x = 112.dp)
+            .clip(CircleShape)
+            .shadow(20.dp, CircleShape)
     )
 }
+
+@Composable
+fun CircularEditButton(
+    onGalleryClick: () -> Unit,
+    onCameraClick: () -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = Modifier
+            .offset(y = (-338).dp, x = 278.dp) // Ajusta la posición como quieras
+    ) {
+        IconButton(
+            onClick = { expanded = !expanded },
+            modifier = Modifier
+                .size(46.dp)
+                .background(Color(0xFF5E4B8B), CircleShape)
+                .border(2.dp, Color.White, CircleShape)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Edit,
+                contentDescription = "Editar foto",
+                tint = Color.White
+            )
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            DropdownMenuItem(
+                text = { Text("Galería") },
+                onClick = {
+                    expanded = false
+                    onGalleryClick()
+                }
+            )
+            DropdownMenuItem(
+                text = { Text("Cámara") },
+                onClick = {
+                    expanded = false
+                    onCameraClick()
+                }
+            )
+        }
+    }
+}
+
 
 @Composable
 fun CardForm(navController: NavController) {
@@ -98,7 +201,7 @@ fun CardForm(navController: NavController) {
     Card(
         modifier = Modifier
             .padding(start = 40.dp, end = 40.dp)
-            .offset(y = (-220).dp)
+            .offset(y = (-300).dp)
             .fillMaxWidth()
             .wrapContentHeight(),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFD8A7D4))
@@ -209,7 +312,8 @@ fun CardForm(navController: NavController) {
             DefaultButton(
                 text = "Guardar Cambios",
                 onClick = {
-                    Toast.makeText(context, "Datos guardados correctamente", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Datos guardados correctamente", Toast.LENGTH_SHORT)
+                        .show()
                     navController.navigate(AppScreens.MenuAlertUserScreen.route) {
                         popUpTo(AppScreens.EditRegisterScreen.route) { inclusive = true }
                     }
@@ -222,12 +326,11 @@ fun CardForm(navController: NavController) {
 }
 
 
-
 @Composable
 fun BoxHeader(
     useImage: Boolean = true,
     backgroundColor: Color = Color(0xFF2E1A47)
-){
+) {
     Box(
         modifier = Modifier
             .height(460.dp)
@@ -237,7 +340,7 @@ fun BoxHeader(
     ) {
         if (useImage) {
             Image(
-                painter  = painterResource(id = R.drawable.mate),
+                painter = painterResource(id = R.drawable.mate),
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop

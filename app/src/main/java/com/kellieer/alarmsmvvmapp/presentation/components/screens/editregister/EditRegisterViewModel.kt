@@ -15,6 +15,7 @@ class EditRegisterViewModel : ViewModel() {
     var phoneNumber by mutableStateOf("")
     var address by mutableStateOf("")
     var birthDate by mutableStateOf("")
+    var profileImageUri by mutableStateOf<String?>(null)
 
     var errorName by mutableStateOf("")
     var errorEmail by mutableStateOf("")

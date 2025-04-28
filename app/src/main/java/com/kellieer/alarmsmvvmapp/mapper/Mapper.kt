@@ -1,11 +1,13 @@
 package com.kellieer.alarmsmvvmapp.mapper
 
 import com.kellieer.alarmsmvvmapp.model.Alert
-import com.kellieer.alarmsmvvmapp.model.Dtos.RegisterAlertDTO
+import com.kellieer.alarmsmvvmapp.model.Dtos.alert.RegisterAlertDTO
+import com.kellieer.alarmsmvvmapp.model.Dtos.user.EditRegisterUserDTO
 import com.kellieer.alarmsmvvmapp.model.Role
 import com.kellieer.alarmsmvvmapp.model.User
 import com.kellieer.alarmsmvvmapp.presentation.components.screens.register.RegisterViewModel
-import com.kelliier.alarmsmvvmapp.model.dtos.RegisterUserDTO
+import com.kellieer.alarmsmvvmapp.model.Dtos.user.RegisterUserDTO
+import com.kellieer.alarmsmvvmapp.presentation.components.screens.editregister.EditRegisterViewModel
 import com.kelliier.alarmsmvvmapp.presentation.components.screens.registeralert.RegisterAlertViewModel
 import java.util.UUID
 
@@ -19,7 +21,8 @@ object Mapper {
             email = dto.email,
             password = dto.password,
             role = Role.USER,
-            alerts = emptyList()
+            alerts = emptyList(),
+            profileImageUri = dto.profileImageUri
         )
     }
 
@@ -57,6 +60,18 @@ object Mapper {
             latitude = viewModel.latitude,
             longitude = viewModel.longitude,
             imageUri = viewModel.imageUri
+        )
+    }
+
+    fun toEditRegisterUserDTO(viewModel: EditRegisterViewModel): EditRegisterUserDTO {
+        return EditRegisterUserDTO(
+            name = viewModel.name,
+            city = viewModel.phoneNumber,
+            address = viewModel.address,
+            email = viewModel.email,
+            password = viewModel.password,
+            confirmPassword = viewModel.password,
+            profileImageUri = viewModel.profileImageUri
         )
     }
 }

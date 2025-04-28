@@ -24,27 +24,21 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
@@ -58,7 +52,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kellieer.alarmsmvvmapp.R
@@ -87,9 +80,9 @@ import com.kellieer.alarmsmvvmapp.model.AlertType
 import com.kelliier.alarmsmvvmapp.presentation.components.screens.registeralert.RegisterAlertViewModel
 import android.net.Uri
 import android.provider.MediaStore
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.rememberCoroutineScope
+import coil.compose.rememberAsyncImagePainter
 import com.kelliier.alarmsmvvmapp.data.remote.ImgurRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -342,6 +335,30 @@ fun CardForm(navController: NavHostController) {
                     Text("Cámara")
                 }
             }
+
+            if (viewModel.imageUri.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Card(
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth(0.9f)
+                        .align(Alignment.CenterHorizontally)
+                        .wrapContentHeight(),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFEAD9FF))
+                ) {
+                    androidx.compose.foundation.Image(
+                        painter = rememberAsyncImagePainter(viewModel.imageUri),
+                        contentDescription = "Imagen Adjunta",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(180.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                    )
+                }
+            }
+
             Spacer(Modifier.height(10.dp))
 
             /* ---------- Botón Registrar ---------- */
@@ -352,18 +369,7 @@ fun CardForm(navController: NavHostController) {
                 onClick = {
                     coroutineScope.launch {
                         if (viewModel.attemptRegister(context)) {
-                            if (viewModel.imageUri.isNotEmpty()) {
-                                isUploading = true
-                                val uploadedImageUrl = ImgurRepository.uploadImage(Uri.parse(viewModel.imageUri), context)
-                                isUploading = false
 
-                                uploadedImageUrl?.let { url ->
-                                    viewModel.imageUri = url
-                                    Log.d("ImgurUpload", "Imagen subida exitosamente: $url")
-                                } ?: run {
-                                    Log.e("ImgurUpload", "Error al subir imagen a Imgur")
-                                }
-                            }
 
                             val registerAlertDTO = Mapper.toRegisterAlertDTO(viewModel)
                             Log.d("RegisterAlertDTO", "Datos capturados: $registerAlertDTO")
@@ -383,9 +389,9 @@ fun CardForm(navController: NavHostController) {
                 ) {
                     Card(
                         shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFF2E1A47)), // Fondo morado oscuro directo
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFF2E1A47)),
                         modifier = Modifier
-                            .fillMaxWidth(0.9f) // 👉 MÁS ANCHO
+                            .fillMaxWidth(0.9f)
                             .wrapContentHeight()
                             .offset(y = (-10).dp)
                     ) {
