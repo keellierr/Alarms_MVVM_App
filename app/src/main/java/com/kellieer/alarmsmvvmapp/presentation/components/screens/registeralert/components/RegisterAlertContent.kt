@@ -146,7 +146,21 @@ fun CardForm(navController: NavHostController) {
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
-            viewModel.imageUri = it.toString() // 👉 Guardamos la imagen en el ViewModel
+            coroutineScope.launch {
+                isUploading = true
+                viewModel.imageUri = it.toString()
+
+                val uploadedImageUrl = ImgurRepository.uploadImage(Uri.parse(viewModel.imageUri), context)
+
+                isUploading = false
+
+                uploadedImageUrl?.let { url ->
+                    viewModel.imageUri = url
+                    Log.d("ImgurUpload", "Imagen subida exitosamente: $url")
+                } ?: run {
+                    Log.e("ImgurUpload", "Error al subir imagen a Imgur")
+                }
+            }
         }
     }
 
@@ -171,8 +185,6 @@ fun CardForm(navController: NavHostController) {
             }
         }
     }
-
-
     Card(
         modifier = Modifier
             .padding(start = 40.dp, end = 40.dp, top = 26.dp)
@@ -403,8 +415,6 @@ fun CardForm(navController: NavHostController) {
                     }
                 }
             }
-
-
         }
     }
 }
