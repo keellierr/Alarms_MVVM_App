@@ -2,6 +2,7 @@ package com.kellieer.alarmsmvvmapp.presentation.components.screens.register.comp
 
 import android.util.Patterns
 import android.widget.Toast
+import com.kellieer.alarmsmvvmapp.mapper.Mapper
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -101,8 +102,8 @@ fun CardForm(navController: NavHostController) {
 
             DefaultTextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = viewModel.nombre,
-                onValueChange = { viewModel.nombre = it },
+                value = viewModel.name,
+                onValueChange = { viewModel.name = it },
                 label = "Nombre",
                 icon = Icons.Default.Face,
                 keyboardType = KeyboardType.Text,
@@ -112,30 +113,30 @@ fun CardForm(navController: NavHostController) {
             Spacer(modifier = Modifier.height(10.dp))
             DefaultTextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = viewModel.ciudad,
+                value = viewModel.city,
                 onValueChange = {
-                    viewModel.ciudad = it
+                    viewModel.city = it
                     viewModel.validateFields()
                 },
                 label = "Ciudad",
                 icon = Icons.Default.Place,
                 keyboardType = KeyboardType.Text,
-                errorMsg = viewModel.ciudadError,
+                errorMsg = viewModel.cityError,
                 labelColor = Color.White
             )
 
             Spacer(modifier = Modifier.height(10.dp))
             DefaultTextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = viewModel.direccion,
+                value = viewModel.address,
                 onValueChange = {
-                    viewModel.direccion = it
+                    viewModel.address = it
                     viewModel.validateFields()
                 },
                 label = "Dirección",
                 icon = Icons.Default.LocationOn,
                 keyboardType = KeyboardType.Text,
-                errorMsg = viewModel.direccionError,
+                errorMsg = viewModel.addressError,
                 labelColor = Color.White
             )
 
@@ -172,15 +173,15 @@ fun CardForm(navController: NavHostController) {
             Spacer(modifier = Modifier.height(10.dp))
             DefaultTextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = viewModel.confirmarPassword,
+                value = viewModel.confirmPassword,
                 onValueChange = {
-                    viewModel.confirmarPassword = it
+                    viewModel.confirmPassword = it
                     viewModel.validateFields()
                 },
                 label = "Confirmar Contraseña",
                 icon = Icons.Default.Lock,
                 keyboardType = KeyboardType.Password,
-                errorMsg = viewModel.confirmarPasswordError,
+                errorMsg = viewModel.confirmPasswordError,
                 labelColor = Color.White
             )
 
@@ -188,7 +189,8 @@ fun CardForm(navController: NavHostController) {
             DefaultButton(
                 text = "Registrarse",
                 onClick = {
-                    Toast.makeText(context, "Usuario registrado correctamente", Toast.LENGTH_LONG).show()
+                    val registerUserDTO = Mapper.toRegisterUserDTO(viewModel)
+                    Toast.makeText(context, "Usuario registrado correctamente: ${registerUserDTO.name}", Toast.LENGTH_LONG).show()
                     navController.navigate(AppScreens.LoginScreen.route) {
                         popUpTo(AppScreens.RegisterScreen.route) { inclusive = true }
                     }
@@ -199,8 +201,6 @@ fun CardForm(navController: NavHostController) {
         }
     }
 }
-
-
 
 @Composable
 fun BoxHeader(

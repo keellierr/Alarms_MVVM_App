@@ -1,8 +1,8 @@
-package com.kellieer.alarmsmvvmapp.model
+package com.kellieer.alarmsmvvmapp.model.Dtos
 
+import com.kellieer.alarmsmvvmapp.model.AlertType
 
-data class Alert(
-    val id: String,
+data class RegisterAlertDTO(
     val title: String,
     val category: AlertType,
     val description: String,

@@ -46,13 +46,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.navigation.NavHostController
 import com.kellieer.alarmsmvvmapp.R
-import com.kellieer.alarmsmvvmapp.presentation.components.DefaultButton
-import com.kellieer.alarmsmvvmapp.presentation.components.DefaultDatePickerDocked
-import com.kellieer.alarmsmvvmapp.presentation.navegation.AppScreens
 
 @Composable
 fun ShowMyAlertAdminContent() {
