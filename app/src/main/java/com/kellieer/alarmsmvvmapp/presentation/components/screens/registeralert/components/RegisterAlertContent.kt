@@ -63,11 +63,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kellieer.alarmsmvvmapp.R
 import com.kellieer.alarmsmvvmapp.presentation.components.DefaultButton
-import com.kellieer.alarmsmvvmapp.presentation.components.DefaultDatePickerDocked
-import com.kellieer.alarmsmvvmapp.presentation.components.DefaultDropdownMenu
 import com.kellieer.alarmsmvvmapp.presentation.components.DefaultTextField
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
@@ -81,8 +78,6 @@ import com.mapbox.maps.Style
 import com.mapbox.maps.plugin.LocationPuck2D
 import com.mapbox.maps.plugin.PuckBearing
 import com.mapbox.maps.plugin.locationcomponent.location
-import androidx.appcompat.content.res.AppCompatResources
-import java.util.Locale
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ListItemDefaults
@@ -92,9 +87,12 @@ import com.kellieer.alarmsmvvmapp.model.AlertType
 import com.kelliier.alarmsmvvmapp.presentation.components.screens.registeralert.RegisterAlertViewModel
 import android.net.Uri
 import android.provider.MediaStore
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.rememberCoroutineScope
 import com.kelliier.alarmsmvvmapp.data.remote.ImgurRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -140,6 +138,7 @@ fun CardForm(navController: NavHostController) {
     val viewModel: RegisterAlertViewModel = viewModel()
     val coroutineScope = rememberCoroutineScope()
     val photoUri = remember { mutableStateOf<Uri?>(null) }
+    var isUploading by remember { mutableStateOf(false) }
 
     var showMap by remember { mutableStateOf(false) }
 
@@ -155,9 +154,24 @@ fun CardForm(navController: NavHostController) {
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
         if (success && photoUri.value != null) {
-            viewModel.imageUri = photoUri.value.toString()
+            coroutineScope.launch {
+                isUploading = true
+                viewModel.imageUri = photoUri.value.toString()
+
+                val uploadedImageUrl = ImgurRepository.uploadImage(Uri.parse(viewModel.imageUri), context)
+
+                isUploading = false
+
+                uploadedImageUrl?.let { url ->
+                    viewModel.imageUri = url
+                    Log.d("ImgurUpload", "Imagen subida exitosamente: $url")
+                } ?: run {
+                    Log.e("ImgurUpload", "Error al subir imagen a Imgur")
+                }
+            }
         }
     }
+
 
     Card(
         modifier = Modifier
@@ -320,14 +334,17 @@ fun CardForm(navController: NavHostController) {
 
             /* ---------- Botón Registrar ---------- */
             DefaultButton(
-                text = "Registrar",
-                enabled = viewModel.isFormValid,
+                text = if (isUploading) "Subiendo..." else "Registrar",
+                enabled = viewModel.isFormValid && !isUploading,
                 color = Color(0xFF5E4B8B),
                 onClick = {
                     coroutineScope.launch {
                         if (viewModel.attemptRegister(context)) {
                             if (viewModel.imageUri.isNotEmpty()) {
+                                isUploading = true
                                 val uploadedImageUrl = ImgurRepository.uploadImage(Uri.parse(viewModel.imageUri), context)
+                                isUploading = false
+
                                 uploadedImageUrl?.let { url ->
                                     viewModel.imageUri = url
                                     Log.d("ImgurUpload", "Imagen subida exitosamente: $url")
@@ -335,8 +352,10 @@ fun CardForm(navController: NavHostController) {
                                     Log.e("ImgurUpload", "Error al subir imagen a Imgur")
                                 }
                             }
+
                             val registerAlertDTO = Mapper.toRegisterAlertDTO(viewModel)
                             Log.d("RegisterAlertDTO", "Datos capturados: $registerAlertDTO")
+
                             withContext(Dispatchers.Main) {
                                 navController.navigateUp()
                             }
@@ -344,6 +363,47 @@ fun CardForm(navController: NavHostController) {
                     }
                 }
             )
+            if (isUploading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Card(
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFF2E1A47)), // Fondo morado oscuro directo
+                        modifier = Modifier
+                            .fillMaxWidth(0.9f) // 👉 MÁS ANCHO
+                            .wrapContentHeight()
+                            .offset(y = (-10).dp)
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.padding(24.dp)
+                        ) {
+                            LinearProgressIndicator(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(6.dp)
+                                    .clip(RoundedCornerShape(12.dp)),
+                                color = Color(0xFFEAD9FF),
+                                trackColor = Color(0xFF4C3B6E)
+                            )
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            Text(
+                                text = "Subiendo imagen...",
+                                color = Color.White,
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 16.sp
+                            )
+                        }
+                    }
+                }
+            }
+
 
         }
     }
@@ -539,5 +599,44 @@ fun drawableToImageHolder(context: Context, drawableId: Int): ImageHolder? {
     return ImageHolder.from(bitmap)
 }
 
+@Composable
+fun LinearDeterminateIndicator() {
+    var currentProgress by remember { mutableStateOf(0f) }
+    var loading by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope() // Create a coroutine scope
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Button(onClick = {
+            loading = true
+            scope.launch {
+                loadProgress { progress ->
+                    currentProgress = progress
+                }
+                loading = false // Reset loading when the coroutine finishes
+            }
+        }, enabled = !loading) {
+            Text("Start loading")
+        }
+
+        if (loading) {
+            LinearProgressIndicator(
+                progress = { currentProgress },
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+    }
+}
+
+/** Iterate the progress value */
+suspend fun loadProgress(updateProgress: (Float) -> Unit) {
+    for (i in 1..100) {
+        updateProgress(i.toFloat() / 100)
+        delay(100)
+    }
+}
 
 
