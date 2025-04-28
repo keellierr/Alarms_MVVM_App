@@ -3,11 +3,14 @@ package com.kellieer.alarmsmvvmapp.presentation.components.screens.registeralert
 import android.content.Context
 import android.location.Geocoder
 import android.Manifest
+import android.content.ContentValues
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -87,6 +90,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kellieer.alarmsmvvmapp.mapper.Mapper
 import com.kellieer.alarmsmvvmapp.model.AlertType
 import com.kelliier.alarmsmvvmapp.presentation.components.screens.registeralert.RegisterAlertViewModel
+import android.net.Uri
+import android.provider.MediaStore
+import androidx.compose.runtime.rememberCoroutineScope
+import com.kelliier.alarmsmvvmapp.data.remote.ImgurRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 @Composable
@@ -128,8 +138,26 @@ fun BoxHeader(
 fun CardForm(navController: NavHostController) {
     val context = LocalContext.current
     val viewModel: RegisterAlertViewModel = viewModel()
+    val coroutineScope = rememberCoroutineScope()
+    val photoUri = remember { mutableStateOf<Uri?>(null) }
 
     var showMap by remember { mutableStateOf(false) }
+
+    val imageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            viewModel.imageUri = it.toString() // 👉 Guardamos la imagen en el ViewModel
+        }
+    }
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success && photoUri.value != null) {
+            viewModel.imageUri = photoUri.value.toString()
+        }
+    }
 
     Card(
         modifier = Modifier
@@ -252,42 +280,82 @@ fun CardForm(navController: NavHostController) {
 
             /* ---------- Imagen ---------- */
             Text(
-                text     = "Cargar imagen",
-                style    = MaterialTheme.typography.labelLarge,
-                color    = Color.White,
+                text = "Cargar imagen",
+                style = MaterialTheme.typography.labelLarge,
+                color = Color.White,
                 modifier = Modifier.padding(start = 8.dp, bottom = 4.dp)
             )
 
-            Button(
-                onClick  = { /* selector de imágenes */ },
+            Row(
                 modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .width(116.dp)
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp),
-                colors   = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF5E4B8B),
-                    contentColor   = Color.White
-                )
-            ) { Text("Escoger") }
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Button(
+                    onClick = { imageLauncher.launch("image/*") },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF5E4B8B),
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text("Galería")
+                }
 
+                Button(
+                    onClick = {
+                        val uri = createImageUri(context)
+                        photoUri.value = uri
+                        cameraLauncher.launch(uri)
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF5E4B8B),
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text("Cámara")
+                }
+            }
             Spacer(Modifier.height(10.dp))
 
             /* ---------- Botón Registrar ---------- */
             DefaultButton(
-                text     = "Registrar",
-                enabled  = viewModel.isFormValid,
-                color    = Color(0xFF5E4B8B),
-                onClick  = {
-                    if (viewModel.attemptRegister(context)) {
-                        val registerAlertDTO = Mapper.toRegisterAlertDTO(viewModel)
-                        Log.d("RegisterAlertDTO", "Datos capturados: $registerAlertDTO")
-                        navController.navigateUp()
+                text = "Registrar",
+                enabled = viewModel.isFormValid,
+                color = Color(0xFF5E4B8B),
+                onClick = {
+                    coroutineScope.launch {
+                        if (viewModel.attemptRegister(context)) {
+                            if (viewModel.imageUri.isNotEmpty()) {
+                                val uploadedImageUrl = ImgurRepository.uploadImage(Uri.parse(viewModel.imageUri), context)
+                                uploadedImageUrl?.let { url ->
+                                    viewModel.imageUri = url
+                                    Log.d("ImgurUpload", "Imagen subida exitosamente: $url")
+                                } ?: run {
+                                    Log.e("ImgurUpload", "Error al subir imagen a Imgur")
+                                }
+                            }
+                            val registerAlertDTO = Mapper.toRegisterAlertDTO(viewModel)
+                            Log.d("RegisterAlertDTO", "Datos capturados: $registerAlertDTO")
+                            withContext(Dispatchers.Main) {
+                                navController.navigateUp()
+                            }
+                        }
                     }
                 }
             )
+
         }
     }
+}
+
+fun createImageUri(context: Context): Uri? {
+    val contentResolver = context.contentResolver
+    val contentValues = ContentValues().apply {
+        put(MediaStore.MediaColumns.DISPLAY_NAME, "temp_image_${System.currentTimeMillis()}.jpg")
+        put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+    }
+    return contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
 }
 
 
