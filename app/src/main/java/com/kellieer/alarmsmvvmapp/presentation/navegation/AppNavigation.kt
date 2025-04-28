@@ -17,6 +17,7 @@ import com.kellieer.alarmsmvvmapp.presentation.components.screens.register.Regis
 import com.kellieer.alarmsmvvmapp.presentation.components.screens.registeralert.RegisterAlertScreen
 import com.kellieer.alarmsmvvmapp.presentation.components.screens.showalert.ShowAlertScreen
 import com.kellieer.alarmsmvvmapp.presentation.components.screens.showalertacceptedadmin.ShowAlertAcceptedAdminScreen
+import com.kellieer.alarmsmvvmapp.presentation.components.screens.showmyalertadmin.ShowMyAlertAdminScreen
 import com.kellieer.alarmsmvvmapp.presentation.components.screens.showpendingresolvedalert.ShowPendingResolvedAlertScreen
 import com.kellieer.alarmsmvvmapp.presentation.components.screens.showpinnedadmin.ShowPinnedAdminScreen
 import com.kellieer.alarmsmvvmapp.presentation.components.screens.showrefusealert.ShowRefuseAlertScreen
@@ -79,6 +80,10 @@ fun AppNavigation(navController: NavHostController,startDestination: String) {
         }
         composable(route = AppScreens.ShowPinnedAdminScreen.route){
             ShowPinnedAdminScreen(navController)
+        }
+
+        composable(route = AppScreens.ShowMyAlertAdminScreen.route){
+            ShowMyAlertAdminScreen(navController)
         }
 
     }

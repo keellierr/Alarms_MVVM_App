@@ -19,4 +19,5 @@ sealed class AppScreens(val route: String) {
     object ShowPendingResolvedAlertScreen : AppScreens ("ShowPendingResolvedAlertScreen")
     object  ShowAlertAcceptedAdminScreen : AppScreens("ShowAlertAcceptedAdminScreen")
     object  ShowPinnedAdminScreen : AppScreens("ShowPinnedAdminScreen")
+    object  ShowMyAlertAdminScreen : AppScreens("ShowMyAlertAdminScreen")
 }

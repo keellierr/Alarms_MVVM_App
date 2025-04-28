@@ -119,9 +119,7 @@ fun DrawerContent(
                                 "Reportes pendientes" -> {
                                     navController.navigate(AppScreens.MenuAdminScreen.route)
                                 }
-                                "Mis reportes" -> {
-                                    navController.navigate(AppScreens.MenuAlertUserScreen.route)
-                                }
+                                "Mis reportes" -> navController.navigate(AppScreens.ShowMyAlertAdminScreen.route)
                                 "Reportes no resueltos" -> {
                                     navController.navigate(AppScreens.ShowPendingResolvedAlertScreen.route)
                                 }

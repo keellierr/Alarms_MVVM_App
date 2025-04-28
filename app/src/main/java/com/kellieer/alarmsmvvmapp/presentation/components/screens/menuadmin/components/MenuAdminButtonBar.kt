@@ -98,7 +98,7 @@ fun MenuAdminButtonBar(
                 )
             }
             Spacer(modifier = Modifier.weight(1f, true))
-            IconButton(onClick = { }) {
+            IconButton(onClick = { navController.navigate(AppScreens.ShowPinnedAdminScreen.route)}) {
                 Icon(
                     painter = painterResource(id = R.drawable.favorite),
                     contentDescription = "Buscar",
@@ -126,7 +126,7 @@ fun MenuAdminButtonBar(
                 horizontalAlignment = Alignment.End
             ) {
                 FloatingActionButton(
-                    onClick = { /* Acción para cupón */ },
+                    onClick = { navController.navigate(AppScreens.RegisterAlertScreen.route)},
                     modifier = Modifier.size(56.dp),
                     containerColor = MaterialTheme.colorScheme.primary
                 ) {
