@@ -6,6 +6,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.compose.foundation.Image
@@ -83,7 +84,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ListItemDefaults
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.kellieer.alarmsmvvmapp.presentation.components.screens.registeralert.RegisterAlertViewModel
+import com.kellieer.alarmsmvvmapp.mapper.Mapper
+import com.kellieer.alarmsmvvmapp.model.AlertType
+import com.kelliier.alarmsmvvmapp.presentation.components.screens.registeralert.RegisterAlertViewModel
 
 
 @Composable
@@ -171,7 +174,12 @@ fun CardForm(navController: NavHostController) {
             Spacer(Modifier.height(10.dp))
 
             /* ---------- Categoría ---------- */
-            CategoryListCard(onEditClick = { /* … */ })
+            CategoryListCard(
+                selectedCategory = viewModel.category,
+                onCategorySelected = { selectedCategory ->
+                    viewModel.category = selectedCategory
+                }
+            )
 
             Spacer(Modifier.height(10.dp))
 
@@ -235,7 +243,8 @@ fun CardForm(navController: NavHostController) {
                 RealTimeLocationMapView(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(240.dp)
+                        .height(240.dp),
+                    viewModel = viewModel
                 )
             }
 
@@ -271,6 +280,8 @@ fun CardForm(navController: NavHostController) {
                 color    = Color(0xFF5E4B8B),
                 onClick  = {
                     if (viewModel.attemptRegister(context)) {
+                        val registerAlertDTO = Mapper.toRegisterAlertDTO(viewModel)
+                        Log.d("RegisterAlertDTO", "Datos capturados: $registerAlertDTO")
                         navController.navigateUp()
                     }
                 }
@@ -282,15 +293,14 @@ fun CardForm(navController: NavHostController) {
 
 @Composable
 fun CategoryListCard(
-    modifier: Modifier = Modifier,
-    onEditClick: () -> Unit = {}
+    selectedCategory: AlertType,
+    onCategorySelected: (AlertType) -> Unit
 ) {
-    // Fondo lila claro
     val cardColor = if (isSystemInDarkTheme()) Color(0xFF4C3B6E) else Color(0xFFF5EBFF)
     val textColor = if (isSystemInDarkTheme()) Color(0xFFEAD9FF) else Color(0xFF3E3065)
 
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = cardColor),
         shape = RoundedCornerShape(16.dp)
     ) {
@@ -300,40 +310,45 @@ fun CategoryListCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text("Categorías", style = MaterialTheme.typography.titleMedium, color = textColor)
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = "Editar",
-                    tint = textColor,
-                    modifier = Modifier.clickable { onEditClick() }
-                )
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            CategoryItem(text = "Seguridad")
+            CategoryItem(text = "Seguridad", selected = selectedCategory == AlertType.SECURITY) {
+                onCategorySelected(AlertType.SECURITY)
+            }
             Divider()
-            CategoryItem(text = "Emergencias médicas")
+            CategoryItem(text = "Emergencias médicas", selected = selectedCategory == AlertType.MEDICAL_EMERGENCY) {
+                onCategorySelected(AlertType.MEDICAL_EMERGENCY)
+            }
             Divider()
-            CategoryItem(text = "Infraestructura")
+            CategoryItem(text = "Infraestructura", selected = selectedCategory == AlertType.INFRASTRUCTURE) {
+                onCategorySelected(AlertType.INFRASTRUCTURE)
+            }
             Divider()
-            CategoryItem(text = "Comunidad")
+            CategoryItem(text = "Comunidad", selected = selectedCategory == AlertType.COMMUNITY) {
+                onCategorySelected(AlertType.COMMUNITY)
+            }
         }
     }
 }
 
+
+
 @Composable
-fun CategoryItem(text: String) {
+fun CategoryItem(text: String, selected: Boolean, onClick: () -> Unit) {
     val isDark = isSystemInDarkTheme()
     val bubbleColor = if (isDark) Color(0xFF9C7FC1) else Color(0xFFEAD9FF)
     val textColor = if (isDark) Color.White else Color.Black
-    val itemBackground = if (isDark) Color(0xFFCE93D8) else Color(0xFFF8F4FF)
+    val selectedBackground = if (selected) Color(0xFFB39DDB) else Color.Transparent
 
     Surface(
-        color = itemBackground,
+        color = selectedBackground,
         shape = RoundedCornerShape(8.dp),
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
+            .clickable { onClick() }
     ) {
         ListItem(
             headlineContent = { Text(text, color = textColor) },
@@ -354,7 +369,6 @@ fun CategoryItem(text: String) {
         )
     }
 }
-
 
 
 @Composable
@@ -379,7 +393,10 @@ fun SmallMapBoxView(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun RealTimeLocationMapView(modifier: Modifier = Modifier) {
+fun RealTimeLocationMapView(
+    modifier: Modifier = Modifier,
+    viewModel: RegisterAlertViewModel = viewModel() // 👈 Pasamos ViewModel aquí también
+) {
     val context = LocalContext.current
     val mapView = remember { MapView(context) }
     val bearingImage = drawableToImageHolder(context, R.drawable.globee)
@@ -414,15 +431,21 @@ fun RealTimeLocationMapView(modifier: Modifier = Modifier) {
                 val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
                 fusedLocationClient.lastLocation
                     .addOnSuccessListener { location ->
-                        location?.let {
+                        if (location != null) {
+                            viewModel.latitude = location.latitude.toString()
+                            viewModel.longitude = location.longitude.toString()
+
                             mapView.getMapboxMap().setCamera(
                                 CameraOptions.Builder()
-                                    .center(Point.fromLngLat(it.longitude, it.latitude))
+                                    .center(Point.fromLngLat(location.longitude, location.latitude))
                                     .zoom(15.0)
                                     .build()
                             )
+                        } else {
+                            Toast.makeText(context, "Ubicación no disponible en este momento", Toast.LENGTH_SHORT).show()
                         }
                     }
+
                     .addOnFailureListener {
                         Toast.makeText(context, "No se pudo obtener la ubicación", Toast.LENGTH_SHORT).show()
                     }
@@ -432,6 +455,7 @@ fun RealTimeLocationMapView(modifier: Modifier = Modifier) {
         }
     }
 }
+
 
 fun drawableToImageHolder(context: Context, drawableId: Int): ImageHolder? {
     val drawable = ContextCompat.getDrawable(context, drawableId) ?: return null

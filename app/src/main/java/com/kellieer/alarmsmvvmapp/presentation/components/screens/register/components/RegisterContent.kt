@@ -1,6 +1,6 @@
 package com.kellieer.alarmsmvvmapp.presentation.components.screens.register.components
 
-import android.util.Patterns
+import android.util.Log
 import android.widget.Toast
 import com.kellieer.alarmsmvvmapp.mapper.Mapper
 import androidx.compose.foundation.Image
@@ -18,9 +18,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
-import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.LocationOn
@@ -30,11 +27,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -45,22 +37,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.kellieer.alarmsmvvmapp.R
-import com.kellieer.alarmsmvvmapp.model.User
 import com.kellieer.alarmsmvvmapp.presentation.components.DefaultButton
-import com.kellieer.alarmsmvvmapp.presentation.components.DefaultDatePickerDocked
 import com.kellieer.alarmsmvvmapp.presentation.components.DefaultTextField
-import com.kellieer.alarmsmvvmapp.presentation.components.screens.login.LoginViewModel
 import com.kellieer.alarmsmvvmapp.presentation.components.screens.register.RegisterViewModel
 import com.kellieer.alarmsmvvmapp.presentation.navegation.AppScreens
-import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-
 
 @Composable
 fun RegisterContent(navController: NavHostController){
@@ -190,6 +173,7 @@ fun CardForm(navController: NavHostController) {
                 text = "Registrarse",
                 onClick = {
                     val registerUserDTO = Mapper.toRegisterUserDTO(viewModel)
+                    Log.d("RegisterUserDTO", "Datos capturados: $registerUserDTO")
                     Toast.makeText(context, "Usuario registrado correctamente: ${registerUserDTO.name}", Toast.LENGTH_LONG).show()
                     navController.navigate(AppScreens.LoginScreen.route) {
                         popUpTo(AppScreens.RegisterScreen.route) { inclusive = true }

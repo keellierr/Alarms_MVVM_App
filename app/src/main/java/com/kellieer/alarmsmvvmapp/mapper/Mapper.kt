@@ -6,6 +6,7 @@ import com.kellieer.alarmsmvvmapp.model.Role
 import com.kellieer.alarmsmvvmapp.model.User
 import com.kellieer.alarmsmvvmapp.presentation.components.screens.register.RegisterViewModel
 import com.kelliier.alarmsmvvmapp.model.dtos.RegisterUserDTO
+import com.kelliier.alarmsmvvmapp.presentation.components.screens.registeralert.RegisterAlertViewModel
 import java.util.UUID
 
 object Mapper {
@@ -28,6 +29,7 @@ object Mapper {
             title = dto.title,
             category = dto.category,
             description = dto.description,
+            address = dto.address,
             latitude = dto.latitude,
             longitude = dto.longitude,
             imageUri = dto.imageUri
@@ -42,6 +44,19 @@ object Mapper {
             email = viewModel.email,
             password = viewModel.password,
             confirmPassword = viewModel.confirmPassword
+        )
+    }
+
+
+    fun toRegisterAlertDTO(viewModel: RegisterAlertViewModel): RegisterAlertDTO {
+        return RegisterAlertDTO(
+            title = viewModel.title,
+            category = viewModel.category,
+            description = viewModel.description,
+            address = viewModel.address,
+            latitude = viewModel.latitude,
+            longitude = viewModel.longitude,
+            imageUri = viewModel.imageUri
         )
     }
 }

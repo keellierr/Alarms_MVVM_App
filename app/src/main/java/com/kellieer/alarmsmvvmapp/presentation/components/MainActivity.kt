@@ -34,7 +34,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val modoPrueba = false
+        val modoPrueba = true
         setContent {
             AlarmsMVVMAppTheme {
                 val navController = rememberNavController()
@@ -56,7 +56,7 @@ class MainActivity : ComponentActivity() {
                         //RegisterScreen(navController = navController)
                         //LoginScreen(navController = navController)
                         //ShowAlertScreen(navController = navController)
-                        //RegisterAlertScreen(navController = navController)
+                        RegisterAlertScreen(navController = navController)
                         //QuicklyWorldAlertScreen()
                         //MenUserScreen(navController = navController)
                         //MenuAlertUserScreen(navController = navController)
