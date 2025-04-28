@@ -16,6 +16,7 @@ import com.kellieer.alarmsmvvmapp.presentation.components.screens.recoverpasswor
 import com.kellieer.alarmsmvvmapp.presentation.components.screens.register.RegisterScreen
 import com.kellieer.alarmsmvvmapp.presentation.components.screens.registeralert.RegisterAlertScreen
 import com.kellieer.alarmsmvvmapp.presentation.components.screens.showalert.ShowAlertScreen
+import com.kellieer.alarmsmvvmapp.presentation.components.screens.showpendingresolvedalert.ShowPendingResolvedAlertScreen
 import com.kellieer.alarmsmvvmapp.presentation.components.screens.showrefusealert.ShowRefuseAlertScreen
 import com.kellieer.alarmsmvvmapp.presentation.components.screens.showremovealert.ShowRemoveAlertScreen
 import com.kellieer.alarmsmvvmapp.presentation.components.screens.showsavedalert.ShowSavedAlertScreen
@@ -67,6 +68,9 @@ fun AppNavigation(navController: NavHostController,startDestination: String) {
         }
         composable(route = AppScreens.ShowRemoveAlertScreen.route){
             ShowRemoveAlertScreen(navController)
+        }
+        composable(route = AppScreens.ShowPendingResolvedAlertScreen.route){
+            ShowPendingResolvedAlertScreen(navController)
         }
     }
 }
