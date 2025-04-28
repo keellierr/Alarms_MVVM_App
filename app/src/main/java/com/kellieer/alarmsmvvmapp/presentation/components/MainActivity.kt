@@ -21,6 +21,7 @@ import com.kellieer.alarmsmvvmapp.presentation.components.screens.menuser.MenUse
 import com.kellieer.alarmsmvvmapp.presentation.components.screens.quicklyworldalert.QuicklyWorldAlertScreen
 import com.kellieer.alarmsmvvmapp.presentation.components.screens.registeralert.RegisterAlertScreen
 import com.kellieer.alarmsmvvmapp.presentation.components.screens.showalert.ShowAlertScreen
+import com.kellieer.alarmsmvvmapp.presentation.components.screens.showalertacceptedadmin.ShowAlertAcceptedAdminScreen
 import com.kellieer.alarmsmvvmapp.presentation.components.screens.showpendingresolvedalert.ShowPendingResolvedAlertScreen
 import com.kellieer.alarmsmvvmapp.presentation.components.screens.showrefusealert.ShowRefuseAlertScreen
 import com.kellieer.alarmsmvvmapp.presentation.components.screens.showsavedalert.ShowSavedAlertScreen
@@ -64,6 +65,7 @@ class MainActivity : ComponentActivity() {
                         //MenuAdminScreen(navController =  navController)
                         //ShowAlertScreen(navController =  navController )
                          // ShowPendingResolvedAlertScreen(navController = navController)
+                        //ShowAlertAcceptedAdminScreen(navController = navController)
 //                        AppNavigation(
 //                            navController = navController,
 //                            startDestination = AppScreens.MenUserScreen.route

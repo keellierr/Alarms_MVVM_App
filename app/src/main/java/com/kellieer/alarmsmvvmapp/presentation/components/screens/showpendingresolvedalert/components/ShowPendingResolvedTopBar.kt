@@ -116,6 +116,8 @@ fun DrawerContentAdmin(
                             when (label) {
                                 "Reportes no resueltos" -> navController.navigate(AppScreens.ShowPendingResolvedAlertScreen.route)
                                 "Reportes pendientes" -> navController.navigate(AppScreens.MenuAdminScreen.route)
+                                "Reportes aceptados" -> navController.navigate(AppScreens.ShowAlertAcceptedAdminScreen.route)
+                                "Guardados" -> navController.navigate(AppScreens.ShowPinnedAdminScreen.route)
                             }
                         }
                         .padding(vertical = 12.dp, horizontal = 8.dp)
